@@ -12,6 +12,9 @@ entries = os.listdir('img/') # Make list Keys
 for i in entries:
      keys.append(i.split('.')[0])
 
+def ping(update:Update, context:CallbackContext):
+    print('ping')
+    bot.send_message(chat_id=update.message.chat_id, text='i am ready',reply_to_message_id=update.message.message_id) 
 
 def check_if_string_in_file(file_name, string_to_search):
     with open(file_name, 'r') as read_obj:
@@ -102,6 +105,7 @@ if __name__ == "__main__":
     bot = Bot(Token)
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('ping',ping))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.all,newMessages))
     dispatcher.add_handler(CallbackQueryHandler(button))
