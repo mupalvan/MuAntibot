@@ -48,35 +48,37 @@ def delete_user(x):
 
 def join(update:Update, context:CallbackContext):
     idUser = update.message.from_user.id
-    f = open('authorizedUser/auser.txt', 'a')
-    f.write(f"{idUser}\n")
-    f.close()
-    check_repetition() 
-    
-    img = random.choice([x for x in os.listdir("img/")
-               if os.path.isfile(os.path.join("img/", x))])
+    if(update.message.new_chat_members[0].id!=bot.id):
+         f = open('authorizedUser/auser.txt', 'a')
+         f.write(f"{idUser}\n")
+         f.close()
+         check_repetition() 
 
-    kis = img.split('.')[0]
-    keys.remove(kis)
-    new_list = random.sample(set(keys), 3)
-    new_list.append(kis)
-    random.shuffle(new_list)
-    keys.append(kis)
+         img = random.choice([x for x in os.listdir("img/")
+                    if os.path.isfile(os.path.join("img/", x))])
 
-    context.user_data['sub'] = img.split('.')[0]
+         kis = img.split('.')[0]
+         keys.remove(kis)
+         new_list = random.sample(set(keys), 3)
+         new_list.append(kis)
+         random.shuffle(new_list)
+         keys.append(kis)
 
-    Keyboard = [
-        [InlineKeyboardButton(new_list[0] , callback_data=new_list[0]),
-        InlineKeyboardButton(new_list[1], callback_data=new_list[1])],
-        [InlineKeyboardButton(new_list[2], callback_data=new_list[2]),
-        InlineKeyboardButton(new_list[3], callback_data=new_list[3])]
-    ]
-    chat_id = update.message.chat_id
+         context.user_data['sub'] = img.split('.')[0]
 
-    msgbut = bot.send_photo(chat_id=chat_id ,reply_to_message_id=update.message.message_id, photo=open(f'img/{img}','rb'),caption=f"{update.message.from_user.first_name} عزیز\nبرای چت در گروه تصویر درست را انتخاب نمایید", reply_markup=InlineKeyboardMarkup(Keyboard))
-    context.user_data['msgid'] = msgbut.message_id
-    context.user_data['chatid'] = chat_id
+         Keyboard = [
+             [InlineKeyboardButton(new_list[0] , callback_data=new_list[0]),
+             InlineKeyboardButton(new_list[1], callback_data=new_list[1])],
+             [InlineKeyboardButton(new_list[2], callback_data=new_list[2]),
+             InlineKeyboardButton(new_list[3], callback_data=new_list[3])]
+         ]
+         chat_id = update.message.chat_id
 
+         msgbut = bot.send_photo(chat_id=chat_id ,reply_to_message_id=update.message.message_id, photo=open(f'img/{img}','rb'),caption=f"{update.message.from_user.first_name} عزیز\nبرای چت در گروه تصویر درست را انتخاب نمایید", reply_markup=InlineKeyboardMarkup(Keyboard))
+         context.user_data['msgid'] = msgbut.message_id
+         context.user_data['chatid'] = chat_id
+     else:
+          pass
 def button(update:Update, context:CallbackContext):
     query = update.callback_query
     
@@ -101,7 +103,7 @@ def newMessages(update:Update, context:CallbackContext):
         pass
 
 if __name__ == "__main__":
-    Token = "1652811680:AAHSaaTxF4Hs0ZkPzFKFV28jOVSHyNX6OS4"
+    Token = ""
     bot = Bot(Token)
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
