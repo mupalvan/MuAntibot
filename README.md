@@ -2,13 +2,13 @@
 this is a robot for platform telegram . 
 this is a robot remove bot and cli account and all fake account in the telegram group
 
-#                            ----------------------
-#                           | Name : Muanti        |
-#                           | id : @muantibot      |
-#                           | admin : @sisoc01     |
-#                           | version : v1.0       |
-#                           | Platform : Telegram  |
-#                            ----------------------
+                            ----------------------
+                           | Name : Muanti        |
+                           | id : @muantibot      |
+                           | admin : @sisoc01     |
+                           | version : v1.0       |
+                           | Platform : Telegram  |
+                            ----------------------
 
 Warning : Python v3.x and pip last version must be installed
 
