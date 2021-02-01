@@ -113,4 +113,5 @@ if __name__ == "__main__":
     dispatcher.add_handler(CallbackQueryHandler(button))
     
     updater.start_polling()
+    print('START')
     updater.idle()
