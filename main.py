@@ -57,7 +57,11 @@ def delete_user(x): # Completed
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 def getmembers(update:Update, context:CallbackContext):
-    bot.get_chat_members_count(chat_id=update.effective_chat.id)
+    try:
+        bot.get_chat_members_count(chat_id=update.effective_chat.id)
+    except:
+        pass
+
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
