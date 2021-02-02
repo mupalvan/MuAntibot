@@ -58,7 +58,8 @@ def delete_user(x): # Completed
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 def getmembers(update:Update, context:CallbackContext):
     try:
-        bot.get_chat_members_count(chat_id=update.effective_chat.id)
+        msg = bot.get_chat_members_count(chat_id=update.effective_chat.id)
+        bot.send_message(chat_id=update.message.chat_id, text=str(msg))
     except:
         pass
 
