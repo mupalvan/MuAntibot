@@ -56,13 +56,6 @@ def delete_user(x): # Completed
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-def getmembers(update:Update, context:CallbackContext):
-    try:
-        msg = bot.get_chat_members_count(chat_id=update.effective_user.id)
-        bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id , text=f"Count Members : {str(msg)}")
-    except:
-        pass
-
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
@@ -157,7 +150,6 @@ if __name__ == "__main__":
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('ping',ping))
-    dispatcher.add_handler(CommandHandler('getmembers',getmembers))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.text, newMessages))
