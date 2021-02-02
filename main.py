@@ -156,6 +156,7 @@ if __name__ == "__main__":
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('ping',ping))
+    dispatcher.add_handler(CommandHandler('getmembers',getmembers))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.text, newMessages))
