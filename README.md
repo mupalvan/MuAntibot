@@ -35,7 +35,7 @@ after start bot Each user joins the group show question for check real account
 and if Enter the wrong answer remove the group
 
 
-git clone https://github.com/mupalvan/MuAntibot.git
+git clone https://github.com/mupalvan/MuAntibot.git\n
 cd MuAntibot
 pip install -r requirements.txt
 python main.py
