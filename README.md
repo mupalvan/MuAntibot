@@ -1,7 +1,11 @@
 # MuAntibot v1.1
 this is a robot for platform telegram . 
 this is a robot remove bot and cli account and all fake account in the telegram group
-
+# Changes version 1.1 :
+   - Bug fixes Add to group by user
+   - Delete the question when leaving the user
+   - Possible error management
+   
                             ----------------------
                            | Name : Muanti        |
                            | id : @muantibot      |
