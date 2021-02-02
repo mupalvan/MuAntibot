@@ -1,4 +1,4 @@
-# MuAntibot v1.0
+# MuAntibot v1.1
 this is a robot for platform telegram . 
 this is a robot remove bot and cli account and all fake account in the telegram group
 
@@ -6,7 +6,7 @@ this is a robot remove bot and cli account and all fake account in the telegram 
                            | Name : Muanti        |
                            | id : @muantibot      |
                            | admin : @sisoc01     |
-                           | version : v1.0       |
+                           | version : v1.1       |
                            | Platform : Telegram  |
                             ----------------------
 
