@@ -185,7 +185,8 @@ def newMessages(update:Update, context:CallbackContext):
     try:
         msg = update.message.message_id
         chat_id = update.message.chat_id
-        if(str(update.message.from_user.id) == str(check_if_string_in_file('authorizedUser/auser.txt', str(update.message.from_user.id)))):
+        idu = update.message.from_user.id
+        if(search_database(str(chat_id).split('-')[1], idu)[2]>2 or search_database(str(chat_id).split('-')[1], idu)[1]=='block'):
             bot.delete_message(chat_id=chat_id, message_id=msg)
         else:
             pass
@@ -202,7 +203,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('war',warning))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
-    dispatcher.add_handler(MessageHandler(Filters.text, newMessages))
+    dispatcher.add_handler(MessageHandler(Filters.all, newMessages))
     dispatcher.add_handler(CallbackQueryHandler(button))
     
     updater.start_polling()
