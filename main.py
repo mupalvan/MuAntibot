@@ -3,7 +3,8 @@
 from telegram import *
 from telegram.ext import *
 from telegram.ext.dispatcher import *
-import random, os
+from sqlite3 import Error
+import random, os, sqlite3
 #///////////////////////////////////////
 if not os.path.exists('authorizedUser'):
     os.makedirs('authorizedUser')
@@ -56,6 +57,20 @@ def delete_user(x): # Completed
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def add_to_database(tableName, id, status, warning):
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        cur = con.execute(f'select * from groupname where id = {id}')
+        if(cur.fetchone() is None):
+            print('if')
+            con.execute(f"INSERT INTO {tableName} (id, status, warning) \
+                VALUES ({id}, '{status}', {warning})");
+            con.commit()
+    except Error:
+        print(Error)
+    finally:
+        con.close()
+
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
