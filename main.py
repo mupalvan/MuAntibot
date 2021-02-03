@@ -179,6 +179,7 @@ def join(update:Update, context:CallbackContext): # Completed v1.1
             dic[idUser]={'chatid':chat_id, 'msgid':msgbut.message_id, 'img':kis}
         else:
             bot.send_message(chat_id=update.message.chat_id, text='please admin me\nfor working')
+            crate_DB()
     except:
         pass
 
