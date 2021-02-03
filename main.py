@@ -83,6 +83,32 @@ def add_to_database(tableName, id, status, warning):
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def reset_user(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+        idu = update.message.reply_to_message.from_user.id
+        try:
+            con = sqlite3.connect('DB/mydatabase.db')
+            cur = con.cursor()
+            cur.execute(f"UPDATE db_{tableName} SET warning = 0, status='active' where id = {idu}")
+            con.commit()
+            bot.send_message(chat_id=update.message.chat_id, text=f'حالا مثل بچه ایی میمونی که تازه ب دنیا اومده\nمیتونی الان چت کنی' ,reply_to_message_id=update.message.reply_to_message.message_id)
+        except Error:
+            print(Error)
+        finally:
+            con.close()
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text='برای ریستارت کردن کاربر روی اون ریپلی کن' ,reply_to_message_id=update.message.message_id)
+    
+
+def deleteUser(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        idu = update.message.reply_to_message.from_user.id
+        bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+        bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text=' خودمو حذف کنم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+    
 def warning(update:Update, context:CallbackContext):
     if(update.message.reply_to_message is not None):
         tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
@@ -201,6 +227,8 @@ if __name__ == "__main__":
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('ping',ping))
     dispatcher.add_handler(CommandHandler('war',warning))
+    dispatcher.add_handler(CommandHandler('del',deleteUser))
+    dispatcher.add_handler(CommandHandler('res',reset_user))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.all, newMessages))
