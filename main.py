@@ -60,10 +60,12 @@ def delete_user(x): # Completed
 def add_to_database(tableName, id, status, warning):
     try:
         con = sqlite3.connect('DB/mydatabase.db')
-        cur = con.execute(f'select * from groupname where id = {id}')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        cur = con.execute(f'select * from db_{tableName} where id = {id}')
+
         if(cur.fetchone() is None):
             print('if')
-            con.execute(f"INSERT INTO {tableName} (id, status, warning) \
+            con.execute(f"INSERT INTO db_{tableName} (id, status, warning) \
                 VALUES ({id}, '{status}', {warning})");
             con.commit()
     except Error:
@@ -84,11 +86,6 @@ def join(update:Update, context:CallbackContext): # Completed v1.1
     try:
         idUser = update.message.new_chat_members[0].id
         if(update.message.new_chat_members[0].id!=bot.id):
-            f = open('authorizedUser/auser.txt', 'a')
-            f.write(f"{idUser}\n")
-            f.close()
-            check_repetition() 
-
             img = random.choice([x for x in os.listdir("img/")
                         if os.path.isfile(os.path.join("img/", x))])
             
@@ -131,12 +128,17 @@ def button(update:Update, context:CallbackContext): # Completed v1.1
         chat_id = dic[user]['chatid']
         message_id = dic[user]['msgid']
         img = dic[user]['img']
-
+        
+        #?////////////////////////////////
+        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+        status = "active"
+        warning = 0
         if(query.message.reply_to_message.new_chat_members[0].id==query.from_user.id):
             if(query.data.__eq__(img)):
+                print('OK')
                 bot.delete_message(chat_id=chat_id, message_id=message_id)
-                delete_user(query.from_user.id)
-                dic.pop(query.from_user.id)
+                add_to_database(tableName, user, status, warning)
+                print('Done')
             else:
                 bot.answer_callback_query(callback_query_id=query.id, text="شما حذف شدید دوباره جوین شده و گزینه صحیح را بزنید", show_alert =True)
                 bot.kick_chat_member(chat_id=chat_id, user_id=query.from_user.id)
