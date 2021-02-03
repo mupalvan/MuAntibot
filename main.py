@@ -141,8 +141,9 @@ def warning(update:Update, context:CallbackContext):
                 bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
                 bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
         else:
-            add_to_database(tableName, idu, "active", 0)
-            warning(update=Update, context=CallbackContext)
+            add_to_database(tableName, idu, "active", 1)
+            warning = search_database(tableName, idu)[2]
+            bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
     else:
         bot.send_message(chat_id=update.message.chat_id, text=' خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
 
