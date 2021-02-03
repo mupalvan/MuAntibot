@@ -57,6 +57,16 @@ def delete_user(x): # Completed
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def search_database(tableName, id):
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        cur = con.execute(f'select * from db_{tableName} where id = {id}')
+        return cur.fetchone()
+    except Error:
+        print(Error)
+    finally:
+        con.close()
 def add_to_database(tableName, id, status, warning):
     try:
         con = sqlite3.connect('DB/mydatabase.db')
