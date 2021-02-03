@@ -72,7 +72,6 @@ def add_to_database(tableName, id, status, warning):
         cur = con.execute(f'select * from db_{tableName} where id = {id}')
 
         if(cur.fetchone() is None):
-            print('if')
             con.execute(f"INSERT INTO db_{tableName} (id, status, warning) \
                 VALUES ({id}, '{status}', {warning})");
             con.commit()
@@ -83,12 +82,18 @@ def add_to_database(tableName, id, status, warning):
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def helper(update:Update, context:CallbackContext):
+    bot.send_message(chat_id=update.message.chat_id, text='''/ping 👾چک کردن آنلاینی ربات \n/war 📛اخطار دادن به کاربر \n/del ❌حذف کاربر \n
+/res ♻️حذف تمام اخطار ها و سکوت یک کاربر \n
+/dbc ✅ساخت دیتابیس \n\n
+🧑🏻‍💻Coding By : @sisoc0
+    ''' ,reply_to_message_id=update.message.message_id)
 def crate_DB(update:Update, context:CallbackContext):
     tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
     try:
         con = sqlite3.connect('DB/mydatabase.db')
         con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
-        bot.send_message(chat_id=update.message.chat_id, text='دیتابیس ساخته شد' ,reply_to_message_id=update.message.message_id)
+        bot.send_message(chat_id=update.message.chat_id, text='✅دیتابیس ساخته شد' ,reply_to_message_id=update.message.message_id)
     except Error:
         print('ER')
         print(Error)
@@ -104,51 +109,56 @@ def reset_user(update:Update, context:CallbackContext):
             cur = con.cursor()
             cur.execute(f"UPDATE db_{tableName} SET warning = 0, status='active' where id = {idu}")
             con.commit()
-            bot.send_message(chat_id=update.message.chat_id, text=f'حالا مثل بچه ایی میمونی که تازه ب دنیا اومده\nمیتونی الان چت کنی' ,reply_to_message_id=update.message.reply_to_message.message_id)
+            bot.send_message(chat_id=update.message.chat_id, text=f'😐حالا مثل بچه ایی میمونی که تازه ب دنیا اومده\nمیتونی الان چت کنی' ,reply_to_message_id=update.message.reply_to_message.message_id)
         except Error:
             print(Error)
         finally:
             con.close()
     else:
-        bot.send_message(chat_id=update.message.chat_id, text='برای ریستارت کردن کاربر روی اون ریپلی کن' ,reply_to_message_id=update.message.message_id)
+        bot.send_message(chat_id=update.message.chat_id, text='☹برای ریستارت کردن کاربر روی اون ریپلی کن' ,reply_to_message_id=update.message.message_id)
     
 
 def deleteUser(update:Update, context:CallbackContext):
     if(update.message.reply_to_message is not None):
         idu = update.message.reply_to_message.from_user.id
         bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
-        bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+        bot.send_message(chat_id=update.message.chat_id, text=f'😈کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
     else:
-        bot.send_message(chat_id=update.message.chat_id, text=' خودمو حذف کنم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+        bot.send_message(chat_id=update.message.chat_id, text='🤕خودمو حذف کنم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
     
 def warning(update:Update, context:CallbackContext):
     if(update.message.reply_to_message is not None):
         tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
         idu = update.message.reply_to_message.from_user.id
-        if(search_database(tableName, idu)[2]<3):
-            warning = search_database(tableName, idu)[2] + 1
-            try:
-                con = sqlite3.connect('DB/mydatabase.db')
-                cur = con.cursor()
-                cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
-                con.commit()
-                bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
-            except Error:
-                print(Error)
-            finally:
-                con.close()
+        if(search_database(tableName, idu) is not None):
+            if(search_database(tableName, idu)[2]<3):
+                warning = search_database(tableName, idu)[2] + 1
+                try:
+                    con = sqlite3.connect('DB/mydatabase.db')
+                    cur = con.cursor()
+                    cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
+                    con.commit()
+                    bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها [{warning}/3]\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
+                except Error:
+                    print(Error)
+                finally:
+                    con.close()
+            else:
+                bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+                bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
         else:
-            bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
-            bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+            add_to_database(tableName, idu, "active", 1)
+            warning = search_database(tableName, idu)[2]
+            bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\n☠️بعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
     else:
-        bot.send_message(chat_id=update.message.chat_id, text=' خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+        bot.send_message(chat_id=update.message.chat_id, text='🤒خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
 
 
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
         if(update.message.from_user.id==806733685):
-            bot.send_message(chat_id=update.message.chat_id, text='i am ready' ,reply_to_message_id=update.message.message_id) 
+            bot.send_message(chat_id=update.message.chat_id, text='هنو زندم عزیز🥵' ,reply_to_message_id=update.message.message_id) 
         else:
             pass
     except:
@@ -178,7 +188,7 @@ def join(update:Update, context:CallbackContext): # Completed v1.1
             msgbut = bot.send_photo(chat_id=chat_id ,reply_to_message_id=update.message.message_id, photo=open(f'img/{img}','rb'),caption=f"{update.message.from_user.first_name} عزیز\nبرای چت در گروه تصویر درست را انتخاب نمایید", reply_markup=InlineKeyboardMarkup(Keyboard))
             dic[idUser]={'chatid':chat_id, 'msgid':msgbut.message_id, 'img':kis}
         else:
-            bot.send_message(chat_id=update.message.chat_id, text='please admin me\nfor working')
+            bot.send_message(chat_id=update.message.chat_id, text='لطفا منو ادمین کن☹️\n💛تا بتونم کارمو بکن')
             crate_DB()
     except:
         pass
@@ -243,6 +253,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('del',deleteUser))
     dispatcher.add_handler(CommandHandler('res',reset_user))
     dispatcher.add_handler(CommandHandler('dbc',crate_DB))
+    dispatcher.add_handler(CommandHandler('help',helper))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.all, newMessages))
