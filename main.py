@@ -54,9 +54,17 @@ def delete_user(x): # Completed
         new_file.close()
     except:
         pass
-#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def search_database(tableName, id):
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        cur = con.execute(f'select * from db_{tableName} where id = {id}')
+        return cur.fetchone()
+    except Error:
+        print(Error)
+    finally:
+        con.close()
+
 def add_to_database(tableName, id, status, warning):
     try:
         con = sqlite3.connect('DB/mydatabase.db')
@@ -72,12 +80,37 @@ def add_to_database(tableName, id, status, warning):
         print(Error)
     finally:
         con.close()
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def warning(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+        idu = update.message.reply_to_message.from_user.id
+        if(search_database(tableName, idu)[2]<3):
+            warning = search_database(tableName, idu)[2] + 1
+            try:
+                con = sqlite3.connect('DB/mydatabase.db')
+                cur = con.cursor()
+                cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
+                con.commit()
+                bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
+            except Error:
+                print(Error)
+            finally:
+                con.close()
+        else:
+            bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+            bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text=' خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+
 
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
         if(update.message.from_user.id==806733685):
-            bot.send_message(chat_id=update.message.chat_id, text='i am ready',reply_to_message_id=update.message.message_id) 
+            bot.send_message(chat_id=update.message.chat_id, text='i am ready' ,reply_to_message_id=update.message.message_id) 
         else:
             pass
     except:
@@ -130,15 +163,14 @@ def button(update:Update, context:CallbackContext): # Completed v1.1
         img = dic[user]['img']
         
         #?////////////////////////////////
-        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
-        status = "active"
-        warning = 0
+        
         if(query.message.reply_to_message.new_chat_members[0].id==query.from_user.id):
             if(query.data.__eq__(img)):
-                print('OK')
+                status = "active"
+                tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+                warning = 0
                 bot.delete_message(chat_id=chat_id, message_id=message_id)
                 add_to_database(tableName, user, status, warning)
-                print('Done')
             else:
                 bot.answer_callback_query(callback_query_id=query.id, text="شما حذف شدید دوباره جوین شده و گزینه صحیح را بزنید", show_alert =True)
                 bot.kick_chat_member(chat_id=chat_id, user_id=query.from_user.id)
@@ -167,6 +199,7 @@ if __name__ == "__main__":
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('ping',ping))
+    dispatcher.add_handler(CommandHandler('war',warning))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.text, newMessages))
