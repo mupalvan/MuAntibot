@@ -72,7 +72,6 @@ def add_to_database(tableName, id, status, warning):
         cur = con.execute(f'select * from db_{tableName} where id = {id}')
 
         if(cur.fetchone() is None):
-            print('if')
             con.execute(f"INSERT INTO db_{tableName} (id, status, warning) \
                 VALUES ({id}, '{status}', {warning})");
             con.commit()
@@ -125,21 +124,25 @@ def warning(update:Update, context:CallbackContext):
     if(update.message.reply_to_message is not None):
         tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
         idu = update.message.reply_to_message.from_user.id
-        if(search_database(tableName, idu)[2]<3):
-            warning = search_database(tableName, idu)[2] + 1
-            try:
-                con = sqlite3.connect('DB/mydatabase.db')
-                cur = con.cursor()
-                cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
-                con.commit()
-                bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
-            except Error:
-                print(Error)
-            finally:
-                con.close()
+        if(search_database(tableName, idu) is not None):
+            if(search_database(tableName, idu)[2]<3):
+                warning = search_database(tableName, idu)[2] + 1
+                try:
+                    con = sqlite3.connect('DB/mydatabase.db')
+                    cur = con.cursor()
+                    cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
+                    con.commit()
+                    bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
+                except Error:
+                    print(Error)
+                finally:
+                    con.close()
+            else:
+                bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+                bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
         else:
-            bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
-            bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+            add_to_database(tableName, idu, "active", 0)
+            warning(update=Update, context=CallbackContext)
     else:
         bot.send_message(chat_id=update.message.chat_id, text=' خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
 
