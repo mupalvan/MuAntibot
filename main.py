@@ -3,7 +3,8 @@
 from telegram import *
 from telegram.ext import *
 from telegram.ext.dispatcher import *
-import random, os
+from sqlite3 import Error
+import random, os, sqlite3
 #///////////////////////////////////////
 if not os.path.exists('authorizedUser'):
     os.makedirs('authorizedUser')
@@ -53,14 +54,101 @@ def delete_user(x): # Completed
         new_file.close()
     except:
         pass
+def search_database(tableName, id):
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        cur = con.execute(f'select * from db_{tableName} where id = {id}')
+        return cur.fetchone()
+    except Error:
+        print(Error)
+    finally:
+        con.close()
+
+def add_to_database(tableName, id, status, warning):
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        cur = con.execute(f'select * from db_{tableName} where id = {id}')
+
+        if(cur.fetchone() is None):
+            print('if')
+            con.execute(f"INSERT INTO db_{tableName} (id, status, warning) \
+                VALUES ({id}, '{status}', {warning})");
+            con.commit()
+    except Error:
+        print(Error)
+    finally:
+        con.close()
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+def crate_DB(update:Update, context:CallbackContext):
+    tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+    try:
+        con = sqlite3.connect('DB/mydatabase.db')
+        con.execute(f"CREATE TABLE IF NOT EXISTS db_{tableName} (id, status, warning);")
+        bot.send_message(chat_id=update.message.chat_id, text='دیتابیس ساخته شد' ,reply_to_message_id=update.message.message_id)
+    except Error:
+        print('ER')
+        print(Error)
+    finally:
+        con.close()
+
+def reset_user(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+        idu = update.message.reply_to_message.from_user.id
+        try:
+            con = sqlite3.connect('DB/mydatabase.db')
+            cur = con.cursor()
+            cur.execute(f"UPDATE db_{tableName} SET warning = 0, status='active' where id = {idu}")
+            con.commit()
+            bot.send_message(chat_id=update.message.chat_id, text=f'حالا مثل بچه ایی میمونی که تازه ب دنیا اومده\nمیتونی الان چت کنی' ,reply_to_message_id=update.message.reply_to_message.message_id)
+        except Error:
+            print(Error)
+        finally:
+            con.close()
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text='برای ریستارت کردن کاربر روی اون ریپلی کن' ,reply_to_message_id=update.message.message_id)
+    
+
+def deleteUser(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        idu = update.message.reply_to_message.from_user.id
+        bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+        bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text=' خودمو حذف کنم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+    
+def warning(update:Update, context:CallbackContext):
+    if(update.message.reply_to_message is not None):
+        tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+        idu = update.message.reply_to_message.from_user.id
+        if(search_database(tableName, idu)[2]<3):
+            warning = search_database(tableName, idu)[2] + 1
+            try:
+                con = sqlite3.connect('DB/mydatabase.db')
+                cur = con.cursor()
+                cur.execute(f"UPDATE db_{tableName} SET warning = {warning} where id = {idu}")
+                con.commit()
+                bot.send_message(chat_id=update.message.chat_id, text=f'تعداد اخطار ها {warning}/3\nبعد از دریافت اخطار چهارم کاربر حذف میشود' ,reply_to_message_id=update.message.reply_to_message.message_id)
+            except Error:
+                print(Error)
+            finally:
+                con.close()
+        else:
+            bot.kick_chat_member(chat_id=update.message.chat_id, user_id=idu)
+            bot.send_message(chat_id=update.message.chat_id, text=f'کاربر حذف شد' ,reply_to_message_id=update.message.reply_to_message.message_id)
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text=' خودمو اخطار بدم؟ روی یکی ریپلی کن' ,reply_to_message_id=update.message.message_id)
+
+
 def ping(update:Update, context:CallbackContext): # Completed
     print('ping')
     try:
         if(update.message.from_user.id==806733685):
-            bot.send_message(chat_id=update.message.chat_id, text='i am ready',reply_to_message_id=update.message.message_id) 
+            bot.send_message(chat_id=update.message.chat_id, text='i am ready' ,reply_to_message_id=update.message.message_id) 
         else:
             pass
     except:
@@ -69,11 +157,6 @@ def join(update:Update, context:CallbackContext): # Completed v1.1
     try:
         idUser = update.message.new_chat_members[0].id
         if(update.message.new_chat_members[0].id!=bot.id):
-            f = open('authorizedUser/auser.txt', 'a')
-            f.write(f"{idUser}\n")
-            f.close()
-            check_repetition() 
-
             img = random.choice([x for x in os.listdir("img/")
                         if os.path.isfile(os.path.join("img/", x))])
             
@@ -116,12 +199,16 @@ def button(update:Update, context:CallbackContext): # Completed v1.1
         chat_id = dic[user]['chatid']
         message_id = dic[user]['msgid']
         img = dic[user]['img']
-
+        
+        #?////////////////////////////////
+        
         if(query.message.reply_to_message.new_chat_members[0].id==query.from_user.id):
             if(query.data.__eq__(img)):
+                status = "active"
+                tableName = str(bot.get_chat(chat_id=update.effective_chat.id).id).split('-')[1]
+                warning = 0
                 bot.delete_message(chat_id=chat_id, message_id=message_id)
-                delete_user(query.from_user.id)
-                dic.pop(query.from_user.id)
+                add_to_database(tableName, user, status, warning)
             else:
                 bot.answer_callback_query(callback_query_id=query.id, text="شما حذف شدید دوباره جوین شده و گزینه صحیح را بزنید", show_alert =True)
                 bot.kick_chat_member(chat_id=chat_id, user_id=query.from_user.id)
@@ -136,7 +223,8 @@ def newMessages(update:Update, context:CallbackContext):
     try:
         msg = update.message.message_id
         chat_id = update.message.chat_id
-        if(str(update.message.from_user.id) == str(check_if_string_in_file('authorizedUser/auser.txt', str(update.message.from_user.id)))):
+        idu = update.message.from_user.id
+        if(search_database(str(chat_id).split('-')[1], idu)[2]>2 or search_database(str(chat_id).split('-')[1], idu)[1]=='block'):
             bot.delete_message(chat_id=chat_id, message_id=msg)
         else:
             pass
@@ -150,9 +238,13 @@ if __name__ == "__main__":
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('ping',ping))
+    dispatcher.add_handler(CommandHandler('war',warning))
+    dispatcher.add_handler(CommandHandler('del',deleteUser))
+    dispatcher.add_handler(CommandHandler('res',reset_user))
+    dispatcher.add_handler(CommandHandler('dbc',crate_DB))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
-    dispatcher.add_handler(MessageHandler(Filters.text, newMessages))
+    dispatcher.add_handler(MessageHandler(Filters.all, newMessages))
     dispatcher.add_handler(CallbackQueryHandler(button))
     
     updater.start_polling()
