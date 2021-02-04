@@ -18,7 +18,8 @@ Warning : Python v3.x and pip last version must be installed
 
 -------------------------- Getting Started --------------------------------------------
 
-1. step 1 : enter token bot in the line 101 -----> [Token='XXXXXXX:yyyyyyyyyyyyyyyyyy'] and add admin id in line 18 (for get id got to bot https://t.me/userinfobot/
+1. step 1 : enter token bot in the line 101 -----> [Token='XXXXXXX:yyyyyyyyyyyyyyyyyy'] and add admin id in line 18 
+for get id got to bot https://t.me/userinfobot/
 2. step 2 : install all prerequisites (run file requirements.txt with command ----->
 pip install -r requirements.txt
 or 
