@@ -1,17 +1,15 @@
-# MuAntibot v1.1
+# MuAntibot v1.2
 this is a robot for platform telegram . 
 this is a robot remove bot and cli account and all fake account in the telegram group
 
 # Changes version 1.1 :
-   - Bug fixes Add to group by user
-   - Delete the question when leaving the user
-   - Possible error management
-   
+  - using database(sqlite3) for save user data
+  - Filter command(The robot only responds to the administrator)
                             ----------------------
                            | Name : Muanti        |
                            | id : @muantibot      |
-                           | admin : @sisoc01     |
-                           | version : v1.1       |
+                           | admin : @sisoc0      |
+                           | version : v1.2       |
                            | Platform : Telegram  |
                             ----------------------
 
@@ -19,7 +17,7 @@ Warning : Python v3.x and pip last version must be installed
 
 -------------------------- Getting Started --------------------------------------------
 
-1. step 1 : enter token bot in the line 101 -----> [Token='XXXXXXX:yyyyyyyyyyyyyyyyyy']
+1. step 1 : enter token bot in the line 101 -----> [Token='XXXXXXX:yyyyyyyyyyyyyyyyyy'] and add admin id in line 18 (for get id got to bot https://t.me/userinfobot/
 2. step 2 : install all prerequisites (run file requirements.txt with command ----->
 pip install -r requirements.txt
 or 
