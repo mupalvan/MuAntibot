@@ -2,7 +2,7 @@
 this is a robot for platform telegram . 
 this is a robot remove bot and cli account and all fake account in the telegram group
 
-# Changes version 1.1 :
+# Changes version 1.2 :
   - using database(sqlite3) for save user data
   - Filter command(The robot only responds to the administrator)
                             ----------------------
