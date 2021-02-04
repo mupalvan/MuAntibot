@@ -5,6 +5,7 @@ this is a robot remove bot and cli account and all fake account in the telegram 
 # Changes version 1.2 :
   - using database(sqlite3) for save user data
   - Filter command(The robot only responds to the administrator)
+  
                             ----------------------
                            | Name : Muanti        |
                            | id : @muantibot      |
