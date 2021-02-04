@@ -245,7 +245,7 @@ def newMessages(update:Update, context:CallbackContext):
 
 #/////////////////////////////////////////////////////////////////////////////////////////////
 if __name__ == "__main__":
-    Token = "1681656442:AAH_acqDhDv5LOX6RJAaTLeklyOlISVI8qo"
+    Token = ""
     bot = Bot(Token)
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
