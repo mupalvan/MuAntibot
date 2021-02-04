@@ -15,7 +15,7 @@ keys=[]
 entries = os.listdir('img/') 
 for i in entries:
      keys.append(i.split('.')[0])
-
+admin = 806733685
 #/////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////
 #/////////////////////////////////////////////////////////////////////
@@ -220,6 +220,7 @@ def button(update:Update, context:CallbackContext): # Completed v1.1
                 warning = 0
                 bot.delete_message(chat_id=chat_id, message_id=message_id)
                 add_to_database(tableName, user, status, warning)
+                bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
             else:
                 bot.answer_callback_query(callback_query_id=query.id, text="شما حذف شدید دوباره جوین شده و گزینه صحیح را بزنید", show_alert =True)
                 bot.kick_chat_member(chat_id=chat_id, user_id=query.from_user.id)
@@ -248,13 +249,12 @@ if __name__ == "__main__":
     bot = Bot(Token)
     updater = Updater(Token, use_context=True)
     dispatcher = updater.dispatcher
-    if(update.message.from_user.id==806733685):
-        dispatcher.add_handler(CommandHandler('ping',ping))
-        dispatcher.add_handler(CommandHandler('war',warning))
-        dispatcher.add_handler(CommandHandler('del',deleteUser))
-        dispatcher.add_handler(CommandHandler('res',reset_user))
-        dispatcher.add_handler(CommandHandler('dbc',crate_DB))
-        dispatcher.add_handler(CommandHandler('help',helper))
+    dispatcher.add_handler(CommandHandler('ping', ping, Filters.user(admin)))
+    dispatcher.add_handler(CommandHandler('war',warning , Filters.user(admin)))
+    dispatcher.add_handler(CommandHandler('del',deleteUser , Filters.user(admin)))
+    dispatcher.add_handler(CommandHandler('res',reset_user , Filters.user(admin)))
+    dispatcher.add_handler(CommandHandler('dbc',crate_DB , Filters.user(admin)))
+    dispatcher.add_handler(CommandHandler('help',helper))
     dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, join))
     dispatcher.add_handler(MessageHandler(Filters.status_update.left_chat_member, left))
     dispatcher.add_handler(MessageHandler(Filters.all, newMessages))
